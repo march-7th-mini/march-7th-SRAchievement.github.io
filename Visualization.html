@@ -1,0 +1,2726 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星穹铁道全成就预览 - 小三月</title>
+    <!-- 添加页面图标 -->
+    <link rel="icon" href="https://patchwiki.biligame.com/images/sr/e/e6/0it2w9hehfp8wqqa2nopfvdk4aj68um.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #f8f9fa;
+            --border-color: #dee2e6;
+            --hover-color: #e9ecef;
+            --gold-color: #FFD700;
+            --silver-color: #C0C0C0;
+            --bronze-color: #CD7F32;
+            --chart-color1: #3498db;
+            --chart-color2: #2ecc71;
+            --chart-color3: #e74c3c;
+            --chart-color4: #f39c12;
+            --selected-color: #e1fef97a;
+            --download-btn-color: #36BD9C;
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --card-bg: #ffffff;
+            --table-header-bg: linear-gradient(to bottom, #2c3e50, #1a2530);
+            --table-row-hover: #f9f9f9;
+            --status-bar-bg: #e9ffe9;
+            --status-bar-error: #ffe9e9;
+            --status-bar-loading: #e3f2fd;
+            --filter-tag-bg: #e3f2fd;
+        }
+        
+        .dark-theme {
+            --bg-color: #1e1e2e;
+            --text-color: #e0e0e0;
+            --card-bg: #2d2d44;
+            --border-color: #444466;
+            --hover-color: #3a3a5a;
+            --table-header-bg: linear-gradient(to bottom, #3a3a5a, #2a2a4a);
+            --table-row-hover: #3a3a5a;
+            --secondary-color: #2d2d44;
+            --status-bar-bg: #1e3c1e;
+            --status-bar-error: #3c1e1e;
+            --status-bar-loading: #1e2e3c;
+            --filter-tag-bg: #2d3a4d;
+        }
+        
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            position: relative;
+            background-image: url('https://patchwiki.biligame.com/images/sr/2/29/tjd2rlq7gbac4k46mnum5fvtt1218r8.png');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            min-height: 100vh;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            opacity: 1;
+            transition: opacity 0.5s;
+        }
+        
+        .loading-content {
+            position: relative;
+            text-align: center;
+        }
+        
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            border: 8px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #3498db;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-image {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -65%);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-image: url('https://patchwiki.biligame.com/images/sr/b/b0/08tyipwiqrm8vgv2tvq2acqaoex8nbr.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            border: 2px solid white;
+        }
+        
+        #loadingOverlay p {
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+            font-size: 20px;
+        }
+        
+        #loadingOverlay .sub-text {
+            font-size: 16px;
+            color: #aaa;
+            margin-top: 10px;
+        }
+        
+        body.loaded #loadingOverlay {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+            padding: 25px;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--text-color);
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 32px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            background: linear-gradient(45deg, #2c3e50, #3498db);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .file-upload-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .upload-card {
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            background: var(--secondary-color);
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upload-card:hover {
+            border-color: var(--primary-color);
+            background: var(--hover-color);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+        }
+        
+        .upload-card h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .url-toggle-icon {
+            cursor: pointer;
+            color: #7f8c8d;
+            margin-left: 8px;
+            font-size: 14px;
+            position: relative;
+        }
+        
+        .url-toggle-icon:hover {
+            color: var(--primary-color);
+        }
+        
+        .url-toggle-icon::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            right: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 1000;
+            width: max-content;
+            max-width: 200px;
+            margin-right: 10px;
+        }
+        
+        .url-toggle-icon:hover::after {
+            opacity: 1;
+        }
+        
+        .progress-container {
+            height: 6px;
+            background: #e0e0e0;
+            position: relative;
+            margin: 10px 0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .upload-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .auto-download-btn {
+            flex: 1;
+            padding: 8px;
+            background: var(--download-btn-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .auto-download-btn:hover {
+            background: #2DA086;
+        }
+        
+        .upload-btn {
+            flex: 1;
+            padding: 8px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upload-btn:hover {
+            background: #2980b9;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            align-items: center;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            height: 46px;
+            transition: all 0.3s;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .search-clear {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            display: none;
+            font-size: 18px;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        select, .export-btn {
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            background: var(--card-bg);
+            min-width: 150px;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            cursor: pointer;
+            outline: none;
+            height: 46px;
+            transition: all 0.3s;
+            color: var(--text-color);
+        }
+        
+        select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        select[multiple] {
+            height: auto;
+            min-height: 46px;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .export-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.3s;
+            cursor: pointer;
+        }
+        
+        .export-btn:hover {
+            background: #2980b9;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .stat-card {
+            border-radius: 8px;
+            padding: 15px;
+            background: var(--card-bg);
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--primary-color);
+            transition: transform 0.3s;
+            color: var(--text-color);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .dark-theme .stat-title {
+            color: #aaa;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-sub {
+            font-size: 14px;
+            color: #777;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .dark-theme .stat-sub {
+            color: #999;
+        }
+        
+        .chart-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .chart-card {
+            border-radius: 8px;
+            padding: 15px;
+            background: var(--card-bg);
+            height: 250px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+        
+        .chart-title {
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            table-layout: fixed;
+            background: var(--card-bg);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            position: relative;
+            color: var(--text-color);
+        }
+        
+        th {
+            background: var(--table-header-bg);
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        th.sort-asc::after {
+            content: '↑';
+            position: absolute;
+            right: 10px;
+        }
+        
+        th.sort-desc::after {
+            content: '↓';
+            position: absolute;
+            right: 10px;
+        }
+        
+        .resize-handle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 5px;
+            height: 100%;
+            background: rgba(255,255,255,0.3);
+            cursor: col-resize;
+        }
+        
+        th:hover .resize-handle {
+            background: rgba(255,255,255,0.7);
+        }
+        
+        tbody tr {
+            transition: background 0.2s;
+        }
+        
+        tbody tr:hover {
+            background-color: var(--table-row-hover);
+        }
+        
+        .selected-row {
+            background-color: var(--selected-color) !important;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .page-info {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        .page-controls {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        
+        .page-numbers {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .page-btn {
+            padding: 8px 14px;
+            min-width: 38px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            color: var(--text-color);
+        }
+        
+        .page-btn:hover {
+            background: var(--hover-color);
+        }
+        
+        .page-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        button {
+            padding: 10px 18px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        .status-bar {
+            padding: 12px 20px;
+            background: var(--status-bar-bg);
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            color: var(--text-color);
+        }
+        
+        .error {
+            background: var(--status-bar-error);
+            color: #e74c3c;
+        }
+        
+        .loading {
+            background: var(--status-bar-loading);
+            color: #3498db;
+        }
+        
+        .rarity-High { 
+            color: var(--gold-color); 
+            font-weight: bold;
+            background: linear-gradient(to right, var(--gold-color), #FFEC8B);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+        
+        .rarity-Mid { 
+            color: var(--silver-color);
+            background: linear-gradient(to right, var(--silver-color), #F0F0F0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+        
+        .rarity-Low { 
+            color: var(--bronze-color);
+            background: linear-gradient(to right, var(--bronze-color), #E0B48D);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+        
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        .back-to-top.show {
+            opacity: 1;
+        }
+        
+        .back-to-top:hover {
+            transform: translateY(-5px);
+        }
+        
+        .hidden-icon {
+            color: #8e44ad;
+            font-size: 18px;
+        }
+        
+        .description-cell {
+            white-space: normal !important;
+            line-height: 1.6;
+        }
+        
+        .jade-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-image: url('https://homdgcat.wiki/images/Achievement/900001.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        
+        .loading-indicator {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            color: #3498db;
+            font-size: 18px;
+        }
+        
+        .checkbox-cell {
+            text-align: center;
+        }
+        
+        .checkbox-cell input {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+        
+        .source-toggle-container {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+        
+        .source-toggle {
+            flex: 1;
+            padding: 8px;
+            text-align: center;
+            background: #e0e0e0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            position: relative;
+            transition: all 0.3s;
+            color: #333;
+        }
+        
+        .dark-theme .source-toggle {
+            background: #3a3a5a;
+            color: #e0e0e0;
+        }
+        
+        .source-toggle.active {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .source-toggle.active::after {
+            content: '✓';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            z-index: 1000;
+            max-width: 400px;
+            white-space: normal;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+            align-items: center;
+        }
+        
+        .filter-tag {
+            background: var(--filter-tag-bg);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            color: var(--text-color);
+        }
+        
+        .filter-tag .remove {
+            cursor: pointer;
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        /* 多选下拉框样式优化 */
+        .multiselect-container {
+            position: relative;
+            min-width: 200px;
+        }
+        
+        .multiselect {
+            position: relative;
+            cursor: pointer;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            background: var(--card-bg);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            color: var(--text-color);
+        }
+        
+        .multiselect-options {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+            max-height: 300px;
+            overflow-y: auto;
+            color: var(--text-color);
+        }
+        
+        .multiselect-options label {
+            display: block;
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+        
+        .multiselect-options label:hover {
+            background: var(--hover-color);
+        }
+        
+        .multiselect-options input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        
+        .header-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .app-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .app-icon {
+            width: 60px;
+            height: 60px;
+            background-image: url('https://patchwiki.biligame.com/images/sr/e/e6/0it2w9hehfp8wqqa2nopfvdk4aj68um.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            border-radius: 12px;
+        }
+        
+        .app-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        
+        .app-description {
+            font-size: 14px;
+            color: #7f8c8d;
+            max-width: 700px;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .social-links a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .social-links a:hover {
+            color: #1a73e8;
+        }
+        
+        .theme-toggle {
+            background: #4a5568;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+        
+        .theme-toggle:hover {
+            background: #2d3748;
+        }
+        
+        /* 新添加的跳过按钮样式 */
+        .skip-loading {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+            position: relative;
+        }
+        
+        .skip-loading:hover {
+            background: #c0392b;
+        }
+        
+        .skip-loading::after {
+            content: "当前正在全速从GitHub仓库下载数据，由于TextMapCHS.json数据文件较大，当前版本此单个文件大小约~35MB，若网络载入速度过慢，建议您到镜像仓库下载TextMapCHS.json数据文件或者点击小卡片右上角的线路切换按钮，切换到备用线路进行尝试。";
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 400px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1000;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .skip-loading:hover::after {
+            opacity: 1;
+        }
+                /* 新增跳过按钮样式 */
+        .skip-loading-overlay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+            z-index: 10000;
+        }
+        
+        .skip-loading-overlay:hover {
+            background: #c0392b;
+        }
+        
+        .skip-loading-overlay::after {
+            content: "当前正在全速从GitHub仓库下载数据，由于TextMapCHS.json数据文件较大，当前版本此单个文件大小约~35MB，若网络载入速度过慢，建议您到镜像仓库下载TextMapCHS.json数据文件或者点击小卡片右上角的线路切换按钮，切换到备用线路进行尝试。";
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 400px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1000;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .skip-loading-overlay:hover::after {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay">
+        <!-- 新增跳过按钮 - 只在载入蒙版上显示 -->
+        <button class="skip-loading-overlay" id="skipLoadingOverlay">
+            <i class="fas fa-forward"></i> Skip
+        </button>
+        
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-image"></div>
+        </div>
+        <p>正在加载资源</p>
+        <p class="sub-text">初次加载资源可能需要较多时间请耐心等待</p>
+    </div>
+
+    <div class="container">
+        <div class="header-section">
+            <div class="app-info">
+                <div class="app-icon"></div>
+                <div>
+                    <div class="app-title">崩坏：星穹铁道🏆成就查询驾驶舱</div>
+                    <div class="app-description">
+                        上传游戏数据文件或使用Github仓库托管数据，查看和分析星穹铁道成就信息，把闪亮亮的成就收满！🌟<br>
+                        页面使用的json数据源：https://github.com/Natrium0521/Firefly/tree/main/src/static/json
+                    </div>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="social-links">
+                    <!-- 新增网盘链接 -->
+                    <a href="https://pan.baidu.com/s/18GCz4Cx7RlA_ZAVavPF0Xw?pwd=u3y9" id="cloudDownload" target="_blank">
+                        <i class="fas fa-cloud-download-alt"></i> 网盘下载
+                    </a>
+                    <a href="https://space.bilibili.com/20413499?spm_id_from=333.1007.0.0" target="_blank">
+                        <i class="fab fa-bilibili"></i>  ξ( ✿＞◡❛)
+                    </a>
+                    <a href="https://github.com/march-7th-mini" target="_blank">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                </div>
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i> 暗色模式
+                </button>
+            </div>
+        </div>
+        
+        <div class="status-bar" id="statusBar"></div>
+        <div class="loading-indicator" id="loadingIndicator">
+            <i class="fas fa-spinner fa-spin"></i> 数据处理中，请稍候...
+        </div>
+        
+        <div class="file-upload-section">
+            <div class="upload-card">
+                <h3>
+                    成就数据 (AchievementData.json)
+                    <span class="url-toggle-icon" id="urlToggleAchievementData" data-tooltip="切换远程数据源线路">
+                        <i class="fas fa-exchange-alt"></i>
+                    </span>
+                </h3>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressAchievementData"></div>
+                </div>
+                <div class="source-toggle-container">
+                    <div class="source-toggle active" data-file="achievementData" data-source="remote">远程数据</div>
+                    <div class="source-toggle" data-file="achievementData" data-source="local">本地数据</div>
+                </div>
+                <div class="upload-controls">
+                    <button class="auto-download-btn" data-file="achievementData">更新远程数据</button>
+                    <label class="upload-btn">
+                        <i class="fas fa-upload"></i> 上传本地文件
+                        <input type="file" class="file-input" id="achievementData" accept=".json">
+                    </label>
+                </div>
+            </div>
+            
+            <div class="upload-card">
+                <h3>
+                    成就系列 (AchievementSeries.json)
+                    <span class="url-toggle-icon" id="urlToggleAchievementSeries" data-tooltip="切换远程数据源线路">
+                        <i class="fas fa-exchange-alt"></i>
+                    </span>
+                </h3>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressAchievementSeries"></div>
+                </div>
+                <div class="source-toggle-container">
+                    <div class="source-toggle active" data-file="achievementSeries" data-source="remote">远程数据</div>
+                    <div class="source-toggle" data-file="achievementSeries" data-source="local">本地数据</div>
+                </div>
+                <div class="upload-controls">
+                    <button class="auto-download-btn" data-file="achievementSeries">更新远程数据</button>
+                    <label class="upload-btn">
+                        <i class="fas fa-upload"></i> 上传本地文件
+                        <input type="file" class="file-input" id="achievementSeries" accept=".json">
+                    </label>
+                </div>
+            </div>
+            
+            <div class="upload-card">
+                <h3>
+                    成就版本 (AchievementVersion.json)
+                    <span class="url-toggle-icon" id="urlToggleAchievementVersion" data-tooltip="切换远程数据源线路">
+                        <i class="fas fa-exchange-alt"></i>
+                    </span>
+                </h3>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressAchievementVersion"></div>
+                </div>
+                <div class="source-toggle-container">
+                    <div class="source-toggle active" data-file="achievementVersion" data-source="remote">远程数据</div>
+                    <div class="source-toggle" data-file="achievementVersion" data-source="local">本地数据</div>
+                </div>
+                <div class="upload-controls">
+                    <button class="auto-download-btn" data-file="achievementVersion">更新远程数据</button>
+                    <label class="upload-btn">
+                        <i class="fas fa-upload"></i> 上传本地文件
+                        <input type="file" class="file-input" id="achievementVersion" accept=".json">
+                    </label>
+                </div>
+            </div>
+            
+            <div class="upload-card">
+                <h3>
+                    中文映射 (TextMapCHS.json)
+                    <span class="url-toggle-icon" id="urlToggleTextMap" data-tooltip="切换远程数据源线路">
+                        <i class="fas fa-exchange-alt"></i>
+                    </span>
+                </h3>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressTextMap"></div>
+                </div>
+                <div class="source-toggle-container">
+                    <div class="source-toggle active" data-file="textMap" data-source="remote">远程数据</div>
+                    <div class="source-toggle" data-file="textMap" data-source="local">本地数据</div>
+                </div>
+                <div class="upload-controls">
+                    <button class="auto-download-btn" data-file="textMap">更新远程数据</button>
+                    <label class="upload-btn">
+                        <i class="fas fa-upload"></i> 上传本地文件
+                        <input type="file" class="file-input" id="textMap" accept=".json">
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-container" id="statsContainer">
+            <div class="stat-card">
+                <div class="stat-title">总成就数</div>
+                <div class="stat-value">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">总星琼奖励</div>
+                <div class="stat-value">0</div>
+                <div class="stat-sub">≈ 0 抽</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">高稀有度成就</div>
+                <div class="stat-value">0</div>
+                <div class="stat-sub"><span class="jade-icon"></span> 0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">中稀有度成就</div>
+                <div class="stat-value">0</div>
+                <div class="stat-sub"><span class="jade-icon"></span> 0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">低稀有度成就</div>
+                <div class="stat-value">0</div>
+                <div class="stat-sub"><span class="jade-icon"></span> 0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">隐藏成就</div>
+                <div class="stat-value">0</div>
+                <div class="stat-sub"><span class="jade-icon"></span> 0</div>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <div class="chart-card">
+                <div class="chart-title">稀有度分布</div>
+                <canvas id="rarityChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">隐藏成就统计</div>
+                <canvas id="hiddenChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">版本分布</div>
+                <canvas id="versionChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">系列分布</div>
+                <canvas id="seriesChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- 搜索和筛选框下移到图表下方 -->
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="搜索成就标题、描述、系列...">
+                <button class="search-clear" id="clearSearch">×</button>
+            </div>
+            
+            <div class="filters">
+                <div class="multiselect-container">
+                    <div class="multiselect" id="seriesMultiselect">
+                        所有系列 <i class="fas fa-caret-down" style="margin-left: 5px;"></i>
+                    </div>
+                    <div class="multiselect-options" id="seriesOptions"></div>
+                </div>
+                
+                <div class="multiselect-container">
+                    <div class="multiselect" id="versionMultiselect">
+                        所有版本 <i class="fas fa-caret-down" style="margin-left: 5px;"></i>
+                    </div>
+                    <div class="multiselect-options" id="versionOptions"></div>
+                </div>
+                
+                <div class="multiselect-container">
+                    <div class="multiselect" id="rarityMultiselect">
+                        所有稀有度 <i class="fas fa-caret-down" style="margin-left: 5px;"></i>
+                    </div>
+                    <div class="multiselect-options" id="rarityOptions">
+                        <label><input type="checkbox" value="" checked> 所有稀有度</label>
+                        <label><input type="checkbox" value="High"> 高</label>
+                        <label><input type="checkbox" value="Mid"> 中</label>
+                        <label><input type="checkbox" value="Low"> 低</label>
+                    </div>
+                </div>
+                
+                <select id="hiddenFilter">
+                    <option value="">所有成就</option>
+                    <option value="true">仅隐藏成就</option>
+                    <option value="false">仅普通成就</option>
+                </select>
+                
+                <button class="export-btn" id="exportBtn">
+                    <i class="fas fa-file-excel"></i> 导出Excel
+                </button>
+            </div>
+        </div>
+        
+        <div class="filter-tags" id="filterTags"></div>
+        
+        <div class="table-container">
+            <table id="achievementTable">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;"></th>
+                        <th data-sort="id">成就ID
+                            <div class="resize-handle"></div>
+                        </th>
+                        <th data-sort="title">标题
+                            <div class="resize-handle"></div>
+                        </th>
+                        <th data-sort="description">描述
+                            <div class="resize-handle"></div>
+                        </th>
+                        <th data-sort="series">所属系列
+                            <div class="resize-handle"></div>
+                        </th>
+                        <th data-sort="isHidden">隐藏成就
+                            <div class="resize-handle"></div>
+                        </th>
+                        <th data-sort="rewards">奖励星琼
+                            <div class="resize-handle"></div>
+                        </th>
+                        <th data-sort="version">游戏版本
+                            <div class="resize-handle"></div>
+                        </th>
+                        <th data-sort="priority">优先级
+                            <div class="resize-handle"></div>
+                        </th>
+                        <th data-sort="rarity">稀有度
+                            <div class="resize-handle"></div>
+                        </th>
+                        <th data-sort="params">参数值
+                            <div class="resize-handle"></div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr>
+                        <td colspan="11" style="text-align: center; padding: 50px;">
+                            <i class="fas fa-cloud-download-alt" style="font-size: 48px; color: #3498db; margin-bottom: 15px;"></i>
+                            <h3>请上传或加载JSON文件</h3>
+                            <p>上传成就数据后，这里将显示详细的成就信息</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="pagination">
+            <div class="page-info" id="pageInfo">第 0 页 / 共 0 页 (总计 0 条记录)</div>
+            <div class="page-controls">
+                <button id="firstPage">首页</button>
+                <button id="prevPage">上一页</button>
+                <div class="page-numbers" id="pageNumbers"></div>
+                <button id="nextPage">下一页</button>
+                <button id="lastPage">末页</button>
+            </div>
+            <div>
+                每页显示：
+                <select id="pageSize">
+                    <option value="20">20条</option>
+                    <option value="50">50条</option>
+                    <option value="100" selected>100条</option>
+                    <option value="200">200条</option>
+                    <option value="500">500条</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // 全局数据存储
+        let allAchievements = [];
+        let filteredData = [];
+        let currentPage = 1;
+        let pageSize = 100;
+        let sortColumn = 'id';
+        let sortDirection = 'asc';
+        let charts = {
+            rarityChart: null,
+            hiddenChart: null,
+            versionChart: null,
+            seriesChart: null
+        };
+        
+        // 定义主线路和备用线路
+        const mirrorRemoteFiles = {
+            achievementData: "https://raw.githubusercontent.com/Natrium0521/Firefly/refs/heads/main/src/static/json/AchievementData.json",
+            achievementSeries: "https://raw.githubusercontent.com/Natrium0521/Firefly/refs/heads/main/src/static/json/AchievementSeries.json",
+            achievementVersion: "https://raw.githubusercontent.com/Natrium0521/Firefly/refs/heads/main/src/static/json/AchievementVersion.json",
+            textMap: "https://raw.githubusercontent.com/Natrium0521/Firefly/refs/heads/main/src/static/json/TextMapCHS.json"
+        };
+        
+        const mainRemoteFiles = {
+            achievementData: "https://hub.gitmirror.com/raw.githubusercontent.com/Natrium0521/Firefly/refs/heads/main/src/static/json/AchievementData.json",
+            achievementSeries: "https://hub.gitmirror.com/raw.githubusercontent.com/Natrium0521/Firefly/refs/heads/main/src/static/json/AchievementSeries.json",
+            achievementVersion: "https://hub.gitmirror.com/raw.githubusercontent.com/Natrium0521/Firefly/refs/heads/main/src/static/json/AchievementVersion.json",
+            textMap: "https://hub.gitmirror.com/raw.githubusercontent.com/Natrium0521/Firefly/refs/heads/main/src/static/json/TextMapCHS.json"
+        };
+        
+        // 当前使用的线路
+        let currentRemoteFiles = {...mainRemoteFiles};
+        let fileSources = {
+            achievementData: "remote",
+            achievementSeries: "remote",
+            achievementVersion: "remote",
+            textMap: "remote"
+        };
+        
+        // 标记Chart.js是否加载失败
+        let chartJsFailed = false;
+        
+        // DOM元素引用
+        const statusBar = document.getElementById('statusBar');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const searchInput = document.getElementById('searchInput');
+        const clearSearch = document.getElementById('clearSearch');
+        const tableBody = document.getElementById('tableBody');
+        const pageInfo = document.getElementById('pageInfo');
+        const pageSizeSelect = document.getElementById('pageSize');
+        const pageNumbers = document.getElementById('pageNumbers');
+        const hiddenFilter = document.getElementById('hiddenFilter');
+        const statsContainer = document.getElementById('statsContainer');
+        const backToTop = document.getElementById('backToTop');
+        const exportBtn = document.getElementById('exportBtn');
+        const tooltip = document.getElementById('tooltip');
+        const filterTags = document.getElementById('filterTags');
+        const themeToggle = document.getElementById('themeToggle');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const skipLoadingOverlay = document.getElementById('skipLoadingOverlay'); // 更新为蒙版上的按钮
+        const cloudDownload = document.getElementById('cloudDownload');
+        
+        // 多选元素引用
+        const seriesMultiselect = document.getElementById('seriesMultiselect');
+        const seriesOptions = document.getElementById('seriesOptions');
+        const versionMultiselect = document.getElementById('versionMultiselect');
+        const versionOptions = document.getElementById('versionOptions');
+        const rarityMultiselect = document.getElementById('rarityMultiselect');
+        const rarityOptions = document.getElementById('rarityOptions');
+        
+        // 文件上传处理
+        const files = {
+            achievementData: null,
+            achievementSeries: null,
+            achievementVersion: null,
+            textMap: null
+        };
+        
+        // 筛选器状态
+        const selectedSeries = new Set();
+        const selectedVersions = new Set();
+        const selectedRarities = new Set();
+        
+        // 初始化事件监听
+        function init() {
+            // 文件上传监听
+            document.getElementById('achievementData').addEventListener('change', handleFileUpload);
+            document.getElementById('achievementSeries').addEventListener('change', handleFileUpload);
+            document.getElementById('achievementVersion').addEventListener('change', handleFileUpload);
+            document.getElementById('textMap').addEventListener('change', handleFileUpload);
+            
+            // 自动加载按钮
+            document.querySelectorAll('.auto-download-btn[data-file]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const fileType = this.dataset.file;
+                    fileSources[fileType] = "remote";
+                    updateSourceToggles();
+                    autoDownloadFile(fileType);
+                });
+            });
+            
+            // 来源切换按钮
+            document.querySelectorAll('.source-toggle').forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    const fileType = this.dataset.file;
+                    const source = this.dataset.source;
+                    
+                    // 如果切换前已经是当前状态，则不处理
+                    if (fileSources[fileType] === source) return;
+                    
+                    fileSources[fileType] = source;
+                    updateSourceToggles();
+                    
+                    // 如果切换到远程，自动触发下载
+                    if (source === "remote") {
+                        autoDownloadFile(fileType);
+                    } 
+                    // 如果切换到本地且已有本地文件，直接使用
+                    else if (source === "local" && files[fileType]) {
+                        showStatus(`已切换到本地文件: ${fileType}.json`, 'success');
+                        checkAllFilesLoaded();
+                    }
+                });
+            });
+            
+            // 表格排序
+            document.querySelectorAll('th[data-sort]').forEach(th => {
+                th.addEventListener('click', () => handleSort(th.dataset.sort));
+            });
+            
+            // 分页控制
+            document.getElementById('firstPage').addEventListener('click', () => goToPage(1));
+            document.getElementById('prevPage').addEventListener('click', () => goToPage(currentPage - 1));
+            document.getElementById('nextPage').addEventListener('click', () => goToPage(currentPage + 1));
+            document.getElementById('lastPage').addEventListener('click', () => goToPage(-1));
+            
+            // 搜索和筛选
+            searchInput.addEventListener('input', filterData);
+            clearSearch.addEventListener('click', () => {
+                searchInput.value = '';
+                filterData();
+                clearSearch.style.display = 'none';
+            });
+            searchInput.addEventListener('input', () => {
+                clearSearch.style.display = searchInput.value ? 'block' : 'none';
+            });
+            pageSizeSelect.addEventListener('change', () => {
+                pageSize = parseInt(pageSizeSelect.value);
+                currentPage = 1;
+                renderTable();
+            });
+            hiddenFilter.addEventListener('change', filterData);
+            
+            // 多选筛选器事件
+            setupMultiselect(seriesMultiselect, seriesOptions, selectedSeries, 'series');
+            setupMultiselect(versionMultiselect, versionOptions, selectedVersions, 'version');
+            setupMultiselect(rarityMultiselect, rarityOptions, selectedRarities, 'rarity');
+            
+            // 回到顶部按钮
+            backToTop.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            window.addEventListener('scroll', () => {
+                backToTop.classList.toggle('show', window.scrollY > 300);
+            });
+            
+            // 导出按钮
+            exportBtn.addEventListener('click', exportToExcel);
+            
+            // 主题切换按钮
+            themeToggle.addEventListener('click', toggleTheme);
+            
+            // 列宽调整
+            initColumnResize();
+            
+            // 初始化来源切换状态
+            updateSourceToggles();
+            
+            // 初始化多选筛选标签
+            initFilterTags();
+            
+            // 线路切换事件
+            document.querySelectorAll('.url-toggle-icon').forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    const card = this.closest('.upload-card');
+                    const fileType = card.querySelector('h3').textContent.match(/(\w+)\.json/)[1];
+                    toggleUrl(fileType);
+                });
+            });
+            
+            // 跳过加载按钮事件 - 绑定到蒙版上的按钮
+            skipLoadingOverlay.addEventListener('click', function() {
+                loadingOverlay.style.opacity = '0';
+                loadingOverlay.style.pointerEvents = 'none';
+                showStatus('已跳过加载过程，部分功能可能受限', 'info');
+                document.body.classList.add('loaded');
+            });
+            
+            // 自动加载所有远程数据
+            autoDownloadFile('achievementData');
+            autoDownloadFile('achievementSeries');
+            autoDownloadFile('achievementVersion');
+            autoDownloadFile('textMap');
+        }
+        
+        // 检测Chart.js是否加载成功
+        function checkChartJsLoaded() {
+            if (typeof Chart === 'undefined') {
+                chartJsFailed = true;
+                console.warn('Chart.js 加载失败，将在需要时尝试重新加载');
+            } else {
+                chartJsFailed = false;
+            }
+        }
+        
+        // 尝试重新加载Chart.js
+        function reloadChartJs() {
+            if (chartJsFailed) {
+                showStatus('Chart.js加载失败，正在尝试重新加载...', 'loading');
+                
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+                script.onload = function() {
+                    showStatus('Chart.js重新加载成功', 'success');
+                    chartJsFailed = false;
+                    updateCharts();
+                };
+                script.onerror = function() {
+                    showStatus('Chart.js重新加载失败，图表功能不可用', 'error');
+                };
+                document.head.appendChild(script);
+            }
+        }
+        
+        // 切换URL
+        function toggleUrl(fileType) {
+            const toggleElement = document.getElementById(`urlToggle${capitalizeFirstLetter(fileType)}`);
+            
+            if (currentRemoteFiles[fileType] === mainRemoteFiles[fileType]) {
+                currentRemoteFiles[fileType] = mirrorRemoteFiles[fileType];
+                toggleElement.dataset.tooltip = '切换到主线路';
+                showStatus(`已切换到备用线路: ${fileType}.json`, 'info');
+            } else {
+                currentRemoteFiles[fileType] = mainRemoteFiles[fileType];
+                toggleElement.dataset.tooltip = '切换到备用线路';
+                showStatus(`已切换到主线路: ${fileType}.json`, 'info');
+            }
+            
+            // 如果当前使用远程数据，重新下载
+            if (fileSources[fileType] === 'remote') {
+                autoDownloadFile(fileType);
+            }
+        }
+        
+        // 切换主题
+        function toggleTheme() {
+            if (document.body.classList.contains('dark-theme')) {
+                document.body.classList.remove('dark-theme');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i> 暗色模式';
+            } else {
+                document.body.classList.add('dark-theme');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i> 亮色模式';
+            }
+        }
+        
+        // 设置多选筛选器
+        function setupMultiselect(multiselect, options, selectedSet, type) {
+            // 点击标题显示选项
+            multiselect.addEventListener('click', (e) => {
+                e.stopPropagation();
+                options.style.display = options.style.display === 'block' ? 'none' : 'block';
+            });
+            
+            // 点击选项处理选择
+            options.addEventListener('change', (e) => {
+                if (e.target.type === 'checkbox') {
+                    const value = e.target.value;
+                    const label = e.target.parentElement.textContent.trim();
+                    
+                    if (value === "") {
+                        // 处理"所有"选项
+                        if (e.target.checked) {
+                            // 选中"所有"，取消其他选项
+                            selectedSet.clear();
+                            options.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                                cb.checked = (cb.value === "");
+                            });
+                        } else {
+                            // 不能取消"所有"选项
+                            e.target.checked = true;
+                        }
+                    } else {
+                        if (e.target.checked) {
+                            selectedSet.add(value);
+                            // 取消"所有"选项
+                            const allOption = options.querySelector('input[type="checkbox"][value=""]');
+                            if (allOption) allOption.checked = false;
+                        } else {
+                            selectedSet.delete(value);
+                            
+                            // 如果没有选中任何选项，自动选中"所有"
+                            if (selectedSet.size === 0) {
+                                const allOption = options.querySelector('input[type="checkbox"][value=""]');
+                                if (allOption) allOption.checked = true;
+                            }
+                        }
+                    }
+                    
+                    updateMultiselectText(multiselect, selectedSet, type);
+                    filterData();
+                    updateFilterTags();
+                }
+            });
+            
+            // 点击页面其他区域关闭选项
+            document.addEventListener('click', (e) => {
+                if (!multiselect.contains(e.target)) {
+                    options.style.display = 'none';
+                }
+            });
+        }
+        
+        // 更新多选筛选器显示文本
+        function updateMultiselectText(element, selectedSet, type) {
+            if (selectedSet.size === 0) {
+                element.innerHTML = `${type === 'series' ? '所有系列' : type === 'version' ? '所有版本' : '所有稀有度'} <i class="fas fa-caret-down" style="margin-left: 5px;"></i>`;
+            } else {
+                element.innerHTML = `${selectedSet.size}个${type === 'series' ? '系列' : type === 'version' ? '版本' : '稀有度'} <i class="fas fa-caret-down" style="margin-left: 5px;"></i>`;
+            }
+        }
+        
+        // 初始化单元格提示
+        function initCellTooltips() {
+            document.addEventListener('mousemove', function(e) {
+                const cell = e.target.closest('td');
+                // 跳过复选框列
+                if (cell && cell.classList.contains('checkbox-cell')) return;
+                
+                if (cell && cell.offsetWidth < cell.scrollWidth) {
+                    tooltip.textContent = cell.textContent;
+                    tooltip.style.left = (e.pageX + 10) + 'px';
+                    tooltip.style.top = (e.pageY + 10) + 'px';
+                    tooltip.style.opacity = '1';
+                } else {
+                    tooltip.style.opacity = '0';
+                }
+            });
+        }
+        
+        // 初始化多选筛选标签
+        function initFilterTags() {
+            // 监听筛选变化
+            hiddenFilter.addEventListener('change', updateFilterTags);
+        }
+        
+        // 更新筛选标签
+        function updateFilterTags() {
+            let html = '';
+            
+            // 系列筛选标签
+            selectedSeries.forEach(value => {
+                const option = Array.from(seriesOptions.querySelectorAll('label'))
+                    .find(label => label.querySelector('input').value === value);
+                
+                if (option) {
+                    const text = option.textContent.replace(/^\s+|\s+$/g, '');
+                    html += `<div class="filter-tag">
+                        <span>系列: ${text}</span>
+                        <span class="remove" data-filter="series" data-value="${value}">×</span>
+                    </div>`;
+                }
+            });
+            
+            // 版本筛选标签
+            selectedVersions.forEach(value => {
+                const option = Array.from(versionOptions.querySelectorAll('label'))
+                    .find(label => label.querySelector('input').value === value);
+                
+                if (option) {
+                    const text = option.textContent.replace(/^\s+|\s+$/g, '');
+                    html += `<div class="filter-tag">
+                        <span>版本: ${text}</span>
+                        <span class="remove" data-filter="version" data-value="${value}">×</span>
+                    </div>`;
+                }
+            });
+            
+            // 稀有度筛选标签
+            selectedRarities.forEach(value => {
+                const option = Array.from(rarityOptions.querySelectorAll('label'))
+                    .find(label => label.querySelector('input').value === value);
+                
+                if (option) {
+                    const text = option.textContent.replace(/^\s+|\s+$/g, '');
+                    html += `<div class="filter-tag">
+                        <span>稀有度: ${text}</span>
+                        <span class="remove" data-filter="rarity" data-value="${value}">×</span>
+                    </div>`;
+                }
+            });
+            
+            // 隐藏成就筛选标签
+            if (hiddenFilter.value) {
+                const text = hiddenFilter.options[hiddenFilter.selectedIndex].text;
+                html += `<div class="filter-tag">
+                    <span>隐藏: ${text}</span>
+                    <span class="remove" data-filter="hidden">×</span>
+                </div>`;
+            }
+            
+            filterTags.innerHTML = html;
+            
+            // 添加移除事件
+            document.querySelectorAll('.filter-tag .remove').forEach(removeBtn => {
+                removeBtn.addEventListener('click', function() {
+                    const filterType = this.dataset.filter;
+                    const value = this.dataset.value;
+                    
+                    if (filterType === 'series') {
+                        // 从选择集中移除
+                        selectedSeries.delete(value);
+                        
+                        // 更新复选框状态
+                        const checkbox = seriesOptions.querySelector(`input[value="${value}"]`);
+                        if (checkbox) checkbox.checked = false;
+                        
+                        // 更新显示文本
+                        updateMultiselectText(seriesMultiselect, selectedSeries, 'series');
+                    } else if (filterType === 'version') {
+                        selectedVersions.delete(value);
+                        const checkbox = versionOptions.querySelector(`input[value="${value}"]`);
+                        if (checkbox) checkbox.checked = false;
+                        updateMultiselectText(versionMultiselect, selectedVersions, 'version');
+                    } else if (filterType === 'rarity') {
+                        selectedRarities.delete(value);
+                        const checkbox = rarityOptions.querySelector(`input[value="${value}"]`);
+                        if (checkbox) checkbox.checked = false;
+                        updateMultiselectText(rarityMultiselect, selectedRarities, 'rarity');
+                    } else if (filterType === 'hidden') {
+                        hiddenFilter.value = '';
+                    }
+                    
+                    filterData();
+                });
+            });
+        }
+        
+        // 更新来源切换按钮状态
+        function updateSourceToggles() {
+            document.querySelectorAll('.source-toggle').forEach(toggle => {
+                const fileType = toggle.dataset.file;
+                const source = toggle.dataset.source;
+                
+                toggle.classList.toggle('active', fileSources[fileType] === source);
+            });
+        }
+        
+        // 自动下载文件
+        function autoDownloadFile(fileType) {
+            const url = currentRemoteFiles[fileType];
+            const progressBar = document.getElementById(`progress${capitalizeFirstLetter(fileType)}`);
+            
+            showStatus(`开始下载: ${fileType}.json`, 'loading');
+            progressBar.style.width = '0%';
+            progressBar.style.backgroundColor = '#3498db';
+            
+            fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`网络响应错误: ${response.status}`);
+                }
+                
+                const contentLength = response.headers.get('content-length');
+                const totalBytes = parseInt(contentLength, 10);
+                let loadedBytes = 0;
+                const chunks = [];
+                const reader = response.body.getReader();
+                
+                function read() {
+                    return reader.read().then(({ value, done }) => {
+                        if (done) {
+                            return chunks;
+                        }
+                        
+                        chunks.push(value);
+                        loadedBytes += value.length;
+                        const progress = Math.round((loadedBytes / totalBytes) * 100);
+                        progressBar.style.width = `${progress}%`;
+                        
+                        return read();
+                    });
+                }
+                
+                return read().then(chunks => {
+                    const blob = new Blob(chunks);
+                    return blob.text();
+                });
+            })
+            .then(text => {
+                try {
+                    const jsonData = JSON.parse(text);
+                    files[fileType] = jsonData;
+                    progressBar.style.width = '100%';
+                    showStatus(`成功加载: ${fileType}.json`, 'success');
+                    
+                    // 检查是否所有文件都已加载
+                    checkAllFilesLoaded();
+                } catch (error) {
+                    showStatus(`解析错误: ${fileType}.json - ${error.message}`, 'error');
+                    progressBar.style.backgroundColor = '#e74c3c';
+                }
+            })
+            .catch(error => {
+                showStatus(`下载错误: ${fileType}.json - ${error.message}`, 'error');
+                progressBar.style.backgroundColor = '#e74c3c';
+            });
+        }
+        
+        // 首字母大写
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+        
+        // 初始化列宽调整
+        function initColumnResize() {
+            const headers = document.querySelectorAll('th');
+            let startX, startWidth, header;
+            
+            headers.forEach(h => {
+                const handle = h.querySelector('.resize-handle');
+                if (!handle) return;
+                
+                handle.addEventListener('mousedown', (e) => {
+                    startX = e.clientX;
+                    startWidth = h.offsetWidth;
+                    header = h;
+                    
+                    document.addEventListener('mousemove', doResize);
+                    document.addEventListener('mouseup', stopResize);
+                });
+            });
+            
+            function doResize(e) {
+                if (header) {
+                    const newWidth = startWidth + (e.clientX - startX);
+                    header.style.width = `${newWidth}px`;
+                    header.style.minWidth = `${newWidth}px`;
+                }
+            }
+            
+            function stopResize() {
+                document.removeEventListener('mousemove', doResize);
+                document.removeEventListener('mouseup', stopResize);
+                header = null;
+            }
+        }
+        
+        // 文件上传处理
+        function handleFileUpload(e) {
+            const fileInput = e.target;
+            const fileType = fileInput.id;
+            const file = fileInput.files[0];
+            const progressBar = document.getElementById(`progress${capitalizeFirstLetter(fileType)}`);
+            
+            if (!file) return;
+            
+            fileSources[fileType] = "local";
+            updateSourceToggles();
+            
+            progressBar.style.width = '0%';
+            progressBar.style.backgroundColor = '#3498db';
+            loadingIndicator.style.display = 'block';
+            statusBar.style.display = 'none';
+            
+            const reader = new FileReader();
+            
+            // 模拟进度
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 5;
+                if (progress < 95) {
+                    progressBar.style.width = `${progress}%`;
+                }
+            }, 100);
+            
+            reader.onload = function(event) {
+                try {
+                    // 清除进度定时器
+                    clearInterval(progressInterval);
+                    progressBar.style.width = '100%';
+                    
+                    const jsonData = JSON.parse(event.target.result);
+                    files[fileType] = jsonData;
+                    showStatus(`成功加载: ${file.name}`, 'success');
+                    
+                    // 检查是否所有文件都已加载
+                    checkAllFilesLoaded();
+                } catch (error) {
+                    console.error('文件解析错误:', error);
+                    showStatus(`解析错误: ${file.name} - ${error.message}`, 'error');
+                    progressBar.style.backgroundColor = '#e74c3c';
+                    files[fileType] = null;
+                } finally {
+                    loadingIndicator.style.display = 'none';
+                }
+            };
+            
+            reader.onerror = function() {
+                clearInterval(progressInterval);
+                showStatus(`读取错误: ${file.name}`, 'error');
+                progressBar.style.backgroundColor = '#e74c3c';
+                loadingIndicator.style.display = 'none';
+            };
+            
+            reader.readAsText(file);
+        }
+        
+        // 检查所有文件是否已加载
+        function checkAllFilesLoaded() {
+            // 检查是否所有文件都已加载
+            if (Object.values(files).every(f => f !== null)) {
+                processAllData();
+                // 隐藏加载蒙版
+                document.body.classList.add('loaded');
+            }
+        }
+        
+        // 处理所有数据
+        function processAllData() {
+            try {
+                showStatus('开始处理数据...', 'info');
+                loadingIndicator.style.display = 'block';
+                
+                const { achievementData, achievementSeries, achievementVersion, textMap } = files;
+                
+                // 1. 创建版本映射
+                const versionMap = {};
+                Object.entries(achievementVersion).forEach(([version, ids]) => {
+                    ids.forEach(id => {
+                        // 确保ID是数字类型
+                        versionMap[parseInt(id)] = version;
+                    });
+                });
+                
+                // 2. 创建系列映射
+                const seriesMap = {};
+                Object.values(achievementSeries).forEach(series => {
+                    const seriesID = series.SeriesID;
+                    const hash = series.SeriesTitle?.Hash || '';
+                    
+                    // 确保Hash是字符串类型
+                    const hashStr = typeof hash === 'number' ? hash.toString() : hash;
+                    const seriesName = textMap[hashStr] || `未知系列-${seriesID}`;
+                    
+                    seriesMap[seriesID] = seriesName;
+                });
+                
+                // 3. 构建成就数据
+                allAchievements = [];
+                Object.values(achievementData).forEach(item => {
+                    // 确保Hash是字符串类型
+                    const titleHash = typeof item.AchievementTitle?.Hash === 'number' 
+                        ? item.AchievementTitle.Hash.toString() 
+                        : item.AchievementTitle?.Hash || '';
+                    
+                    const descHash = typeof item.AchievementDesc?.Hash === 'number' 
+                        ? item.AchievementDesc.Hash.toString() 
+                        : item.AchievementDesc?.Hash || '';
+                    
+                    // 获取标题和描述
+                    let titleText = textMap[titleHash] || `[未知标题:${titleHash}]`;
+                    let descriptionText = textMap[descHash] || `[未知描述:${descHash}]`;
+                    
+                    // 替换参数占位符 - 支持 #1, #2, #1[i], #1[f1] 等格式
+                    if (item.ParamList && item.ParamList.length) {
+                        for (let i = 0; i < item.ParamList.length; i++) {
+                            const value = item.ParamList[i].Value;
+                            
+                            // 替换 #1, #2 格式
+                            const simplePlaceholder = `#${i+1}`;
+                            if (descriptionText.includes(simplePlaceholder)) {
+                                descriptionText = descriptionText.replace(
+                                    new RegExp(simplePlaceholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+                                    value
+                                );
+                            }
+                            
+                            // 替换 #1[i], #2[i] 格式
+                            const indexPlaceholder = `#${i+1}[i]`;
+                            if (descriptionText.includes(indexPlaceholder)) {
+                                descriptionText = descriptionText.replace(
+                                    new RegExp(indexPlaceholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+                                    value
+                                );
+                            }
+                            
+                            // 替换 #1[f1], #2[f1] 格式
+                            const floatPlaceholder = `#${i+1}[f1]`;
+                            if (descriptionText.includes(floatPlaceholder)) {
+                                descriptionText = descriptionText.replace(
+                                    new RegExp(floatPlaceholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+                                    value
+                                );
+                            }
+                        }
+                    }
+                    
+                    // 移除描述中的[i]标记
+                    descriptionText = descriptionText.replace(/\[i\]/g, '');
+                    
+                    // 计算奖励星琼
+                    const rewards = item.Rarity === "Low" ? 5 : 
+                                  item.Rarity === "Mid" ? 10 : 
+                                  item.Rarity === "High" ? 20 : 0;
+                    
+                    // 确定是否隐藏成就
+                    const isHidden = item.ShowType === "ShowAfterFinish";
+                    
+                    allAchievements.push({
+                        id: item.AchievementID,
+                        title: titleText,
+                        description: descriptionText,
+                        series: seriesMap[item.SeriesID] || `未知系列-${item.SeriesID}`,
+                        version: versionMap[item.AchievementID] || "未知版本",
+                        rarity: item.Rarity,
+                        params: item.ParamList.map(p => p.Value).join(", "),
+                        priority: item.Priority,
+                        isHidden: isHidden,
+                        rewards: rewards
+                    });
+                });
+                
+                console.log('数据处理完成', allAchievements);
+                
+                // 初始化筛选器选项
+                initFilters();
+                
+                // 渲染表格
+                filterData();
+                showStatus(`数据加载完成！共 ${allAchievements.length} 条成就数据`, 'success');
+            } catch (error) {
+                console.error('数据处理错误:', error);
+                showStatus(`数据处理错误: ${error.message}`, 'error');
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+        
+        // 初始化筛选器选项
+        function initFilters() {
+            // 系列筛选器
+            const seriesSet = new Set();
+            allAchievements.forEach(a => seriesSet.add(a.series));
+            
+            seriesOptions.innerHTML = '<label><input type="checkbox" value="" checked> 所有系列</label>';
+            seriesSet.forEach(series => {
+                const option = document.createElement('label');
+                option.innerHTML = `<input type="checkbox" value="${series}"> ${series}`;
+                seriesOptions.appendChild(option);
+            });
+            
+            // 版本筛选器
+            const versionSet = new Set();
+            allAchievements.forEach(a => versionSet.add(a.version));
+            
+            versionOptions.innerHTML = '<label><input type="checkbox" value="" checked> 所有版本</label>';
+            
+            // 版本倒序排序
+            const versions = Array.from(versionSet);
+            versions.sort((a, b) => {
+                // 处理未知版本
+                if (a === "未知版本") return 1;
+                if (b === "未知版本") return -1;
+                
+                const aParts = a.split('.').map(Number);
+                const bParts = b.split('.').map(Number);
+                
+                // 主版本比较
+                if (bParts[0] !== aParts[0]) return bParts[0] - aParts[0];
+                // 次版本比较
+                return bParts[1] - aParts[1];
+            });
+            
+            versions.forEach(version => {
+                const option = document.createElement('label');
+                option.innerHTML = `<input type="checkbox" value="${version}"> ${version}`;
+                versionOptions.appendChild(option);
+            });
+            
+            // 更新筛选标签
+            updateFilterTags();
+        }
+        
+        // 数据筛选
+        function filterData() {
+            // 如果触发筛选功能，检查Chart.js是否加载失败
+            if (chartJsFailed) {
+                reloadChartJs();
+            }
+            
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedHidden = hiddenFilter.value;
+            
+            filteredData = allAchievements.filter(achievement => {
+                // 搜索条件
+                const matchesSearch = searchTerm === '' || 
+                    achievement.title.toLowerCase().includes(searchTerm) ||
+                    achievement.description.toLowerCase().includes(searchTerm) ||
+                    achievement.series.toLowerCase().includes(searchTerm);
+                
+                // 筛选条件
+                const matchesSeries = selectedSeries.size === 0 || 
+                    selectedSeries.has(achievement.series);
+                
+                const matchesVersion = selectedVersions.size === 0 || 
+                    selectedVersions.has(achievement.version);
+                
+                const matchesRarity = selectedRarities.size === 0 || 
+                    selectedRarities.has(achievement.rarity);
+                
+                const matchesHidden = selectedHidden === '' || 
+                    (selectedHidden === "true" && achievement.isHidden) ||
+                    (selectedHidden === "false" && !achievement.isHidden);
+                
+                return matchesSearch && matchesSeries && matchesVersion && matchesRarity && matchesHidden;
+            });
+            
+            currentPage = 1;
+            renderTable();
+            updateStats();
+            updateCharts();
+            updateFilterTags();
+        }
+        
+        // 表格排序
+        function handleSort(column) {
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+            
+            // 更新表头指示器
+            document.querySelectorAll('th[data-sort]').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+            
+            const currentHeader = document.querySelector(`th[data-sort="${sortColumn}"]`);
+            if (currentHeader) {
+                currentHeader.classList.add(sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+            }
+            
+            // 排序数据
+            filteredData.sort((a, b) => {
+                const valA = a[sortColumn];
+                const valB = b[sortColumn];
+                
+                // 处理空值
+                if (valA === undefined || valA === null) return 1;
+                if (valB === undefined || valB === null) return -1;
+                
+                // 处理数字排序
+                if (sortColumn === 'id' || sortColumn === 'priority' || sortColumn === 'rewards') {
+                    return sortDirection === 'asc' ? valA - valB : valB - valA;
+                }
+                
+                // 布尔值排序
+                if (sortColumn === 'isHidden') {
+                    return sortDirection === 'asc' 
+                        ? (valA === valB ? 0 : valA ? -1 : 1)
+                        : (valA === valB ? 0 : valA ? 1 : -1);
+                }
+                
+                // 字符串排序
+                return sortDirection === 'asc' 
+                    ? String(valA).localeCompare(String(valB)) 
+                    : String(valB).localeCompare(String(valA));
+            });
+            
+            renderTable();
+        }
+        
+        // 渲染表格
+        function renderTable() {
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, filteredData.length);
+            const pageData = filteredData.slice(startIndex, endIndex);
+            const totalPages = Math.ceil(filteredData.length / pageSize);
+            
+            // 清空表格
+            tableBody.innerHTML = '';
+            
+            if (filteredData.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="11" style="text-align:center;padding:50px;color:#7f8c8d;">
+                    <i class="fas fa-search" style="font-size:48px;margin-bottom:15px;"></i>
+                    <h3>没有找到匹配的成就数据</h3>
+                    <p>请尝试修改筛选条件或搜索关键词</p>
+                </td>`;
+                tableBody.appendChild(row);
+            } else {
+                // 填充数据
+                pageData.forEach(achievement => {
+                    const row = document.createElement('tr');
+                    row.dataset.id = achievement.id;
+                    
+                    // 处理HTML标签
+                    const description = achievement.description
+                        .replace(/\\n/g, '<br>')
+                        .replace(/<color=#([a-f0-9]{8})>/gi, '<span style="color:#$1">')
+                        .replace(/<\/color>/gi, '</span>');
+                    
+                    row.innerHTML = `
+                        <td class="checkbox-cell">
+                            <input type="checkbox" class="row-checkbox">
+                        </td>
+                        <td>${achievement.id}</td>
+                        <td>${achievement.title}</td>
+                        <td class="description-cell">${description}</td>
+                        <td>${achievement.series}</td>
+                        <td>${achievement.isHidden ? '<i class="fas fa-eye-slash hidden-icon"></i> 是' : '否'}</td>
+                        <td><span class="jade-icon"></span> ${achievement.rewards}</td>
+                        <td>${achievement.version}</td>
+                        <td>${achievement.priority}</td>
+                        <td class="rarity-${achievement.rarity}">${achievement.rarity}</td>
+                        <td>${achievement.params}</td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+                
+                // 添加行选择事件
+                document.querySelectorAll('.row-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        const row = this.closest('tr');
+                        if (this.checked) {
+                            row.classList.add('selected-row');
+                        } else {
+                            row.classList.remove('selected-row');
+                        }
+                    });
+                });
+                
+                // 添加单元格提示 - 跳过复选框列
+                document.querySelectorAll('td:not(.checkbox-cell)').forEach(td => {
+                    if (td.offsetWidth < td.scrollWidth) {
+                        td.setAttribute('title', td.textContent);
+                    }
+                });
+            }
+            
+            // 更新分页信息
+            pageInfo.textContent = `第 ${currentPage} 页 / 共 ${totalPages} 页 (总计 ${filteredData.length} 条记录)`;
+            
+            // 更新分页按钮
+            renderPageNumbers(totalPages);
+            
+            // 更新分页按钮状态
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages;
+            document.getElementById('firstPage').disabled = currentPage === 1;
+            document.getElementById('lastPage').disabled = currentPage === totalPages || totalPages === 0;
+        }
+        
+        // 渲染页码按钮
+        function renderPageNumbers(totalPages) {
+            pageNumbers.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+            
+            // 显示页码范围（最多显示7个）
+            const startPage = Math.max(1, currentPage - 3);
+            const endPage = Math.min(totalPages, startPage + 6);
+            
+            // 第一页按钮
+            if (startPage > 1) {
+                const firstBtn = document.createElement('div');
+                firstBtn.className = 'page-btn';
+                firstBtn.textContent = '1';
+                firstBtn.addEventListener('click', () => goToPage(1));
+                pageNumbers.appendChild(firstBtn);
+                
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('div');
+                    ellipsis.className = 'page-btn';
+                    ellipsis.textContent = '...';
+                    ellipsis.style.cursor = 'default';
+                    pageNumbers.appendChild(ellipsis);
+                }
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('div');
+                pageBtn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+                pageBtn.textContent = i;
+                pageBtn.addEventListener('click', () => goToPage(i));
+                pageNumbers.appendChild(pageBtn);
+            }
+            
+            // 最后一页按钮
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('div');
+                    ellipsis.className = 'page-btn';
+                    ellipsis.textContent = '...';
+                    ellipsis.style.cursor = 'default';
+                    pageNumbers.appendChild(ellipsis);
+                }
+                
+                const lastBtn = document.createElement('div');
+                lastBtn.className = 'page-btn';
+                lastBtn.textContent = totalPages;
+                lastBtn.addEventListener('click', () => goToPage(totalPages));
+                pageNumbers.appendChild(lastBtn);
+            }
+        }
+        
+        // 分页导航
+        function goToPage(page) {
+            const totalPages = Math.ceil(filteredData.length / pageSize);
+            
+            if (page === -1) {
+                // 末页
+                currentPage = totalPages;
+            } else if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+            }
+            
+            renderTable();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 更新统计信息
+        function updateStats() {
+            // 计算统计数据
+            const total = filteredData.length;
+            const totalRewards = filteredData.reduce((sum, a) => sum + a.rewards, 0);
+            
+            // 按稀有度统计
+            const rarityStats = {
+                High: { count: 0, rewards: 0 },
+                Mid: { count: 0, rewards: 0 },
+                Low: { count: 0, rewards: 0 }
+            };
+            
+            // 隐藏成就统计
+            let hiddenCount = 0;
+            let hiddenRewards = 0;
+            
+            filteredData.forEach(a => {
+                // 稀有度统计
+                if (rarityStats[a.rarity]) {
+                    rarityStats[a.rarity].count++;
+                    rarityStats[a.rarity].rewards += a.rewards;
+                }
+                
+                // 隐藏成就统计
+                if (a.isHidden) {
+                    hiddenCount++;
+                    hiddenRewards += a.rewards;
+                }
+            });
+            
+            // 更新统计卡片
+            const statCards = statsContainer.querySelectorAll('.stat-card');
+            statCards[0].querySelector('.stat-value').textContent = total;
+            statCards[1].querySelector('.stat-value').textContent = totalRewards;
+            statCards[1].querySelector('.stat-sub').innerHTML = `≈ ${Math.floor(totalRewards / 160)} 抽`;
+            statCards[2].querySelector('.stat-value').textContent = rarityStats.High.count;
+            statCards[2].querySelector('.stat-sub').innerHTML = `<span class="jade-icon"></span> ${rarityStats.High.rewards}`;
+            statCards[3].querySelector('.stat-value').textContent = rarityStats.Mid.count;
+            statCards[3].querySelector('.stat-sub').innerHTML = `<span class="jade-icon"></span> ${rarityStats.Mid.rewards}`;
+            statCards[4].querySelector('.stat-value').textContent = rarityStats.Low.count;
+            statCards[4].querySelector('.stat-sub').innerHTML = `<span class="jade-icon"></span> ${rarityStats.Low.rewards}`;
+            statCards[5].querySelector('.stat-value').textContent = hiddenCount;
+            statCards[5].querySelector('.stat-sub').innerHTML = `<span class="jade-icon"></span> ${hiddenRewards}`;
+        }
+        
+        // 更新图表
+        function updateCharts() {
+            // 如果Chart.js加载失败，尝试重新加载
+            if (chartJsFailed) {
+                reloadChartJs();
+                return;
+            }
+            
+            // 如果Chart对象不存在，跳过图表渲染
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js 未加载，无法渲染图表');
+                return;
+            }
+            
+            // 销毁旧图表
+            Object.values(charts).forEach(chart => {
+                if (chart) chart.destroy();
+            });
+            
+            if (filteredData.length === 0) return;
+            
+            // 稀有度分布
+            const rarityCounts = {
+                High: 0,
+                Mid: 0,
+                Low: 0
+            };
+            
+            // 隐藏成就统计
+            let hiddenCount = 0;
+            let visibleCount = 0;
+            
+            // 版本分布
+            const versionCounts = {};
+            
+            // 系列分布
+            const seriesCounts = {};
+            
+            filteredData.forEach(a => {
+                // 稀有度统计
+                if (rarityCounts[a.rarity] !== undefined) {
+                    rarityCounts[a.rarity]++;
+                }
+                
+                // 隐藏成就统计
+                if (a.isHidden) {
+                    hiddenCount++;
+                } else {
+                    visibleCount++;
+                }
+                
+                // 版本统计
+                const version = a.version || "未知版本";
+                if (!versionCounts[version]) {
+                    versionCounts[version] = 0;
+                }
+                versionCounts[version]++;
+                
+                // 系列统计
+                const series = a.series;
+                if (!seriesCounts[series]) {
+                    seriesCounts[series] = 0;
+                }
+                seriesCounts[series]++;
+            });
+            
+            // 稀有度分布饼图
+            const rarityCtx = document.getElementById('rarityChart').getContext('2d');
+            charts.rarityChart = new Chart(rarityCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['高稀有度', '中稀有度', '低稀有度'],
+                    datasets: [{
+                        data: [rarityCounts.High, rarityCounts.Mid, rarityCounts.Low],
+                        backgroundColor: ['#FFD700', '#C0C0C0', '#CD7F32'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.chart.getDatasetMeta(0).total;
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 隐藏成就饼图
+            const hiddenCtx = document.getElementById('hiddenChart').getContext('2d');
+            charts.hiddenChart = new Chart(hiddenCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['隐藏成就', '普通成就'],
+                    datasets: [{
+                        data: [hiddenCount, visibleCount],
+                        backgroundColor: ['#8e44ad', '#3498db'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.chart.getDatasetMeta(0).total;
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 版本分布柱状图
+            const versionCtx = document.getElementById('versionChart').getContext('2d');
+            
+            // 版本排序（降序）
+            const sortedVersions = Object.keys(versionCounts).sort((a, b) => {
+                if (a === "未知版本") return 1;
+                if (b === "未知版本") return -1;
+                
+                const aParts = a.split('.').map(Number);
+                const bParts = b.split('.').map(Number);
+                
+                if (bParts[0] !== aParts[0]) return bParts[0] - aParts[0];
+                return bParts[1] - aParts[1];
+            });
+            
+            const versionData = sortedVersions.map(v => versionCounts[v]);
+            
+            charts.versionChart = new Chart(versionCtx, {
+                type: 'bar',
+                data: {
+                    labels: sortedVersions,
+                    datasets: [{
+                        label: '成就数量',
+                        data: versionData,
+                        backgroundColor: '#3498db',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 系列分布饼图
+            const seriesCtx = document.getElementById('seriesChart').getContext('2d');
+            
+            // 只显示前10个系列，其余归为"其他"
+            const sortedSeries = Object.entries(seriesCounts)
+                .sort((a, b) => b[1] - a[1]);
+            
+            const topSeries = sortedSeries.slice(0, 10);
+            const otherCount = sortedSeries.slice(10).reduce((sum, [, count]) => sum + count, 0);
+            
+            const seriesLabels = topSeries.map(([name]) => name);
+            const seriesData = topSeries.map(([, count]) => count);
+            
+            if (otherCount > 0) {
+                seriesLabels.push('其他系列');
+                seriesData.push(otherCount);
+            }
+            
+            charts.seriesChart = new Chart(seriesCtx, {
+                type: 'pie',
+                data: {
+                    labels: seriesLabels,
+                    datasets: [{
+                        data: seriesData,
+                        backgroundColor: [
+                            '#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6',
+                            '#1abc9c', '#d35400', '#c0392b', '#16a085', '#8e44ad',
+                            '#7f8c8d'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.chart.getDatasetMeta(0).total;
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 导出为Excel
+        function exportToExcel() {
+            if (filteredData.length === 0) {
+                showStatus('没有数据可导出', 'error');
+                return;
+            }
+            
+            try {
+                // 准备数据
+                const data = filteredData.map(item => ({
+                    '成就ID': item.id,
+                    '标题': item.title,
+                    '描述': item.description.replace(/<[^>]*>/g, ''),
+                    '所属系列': item.series,
+                    '隐藏成就': item.isHidden ? '是' : '否',
+                    '奖励星琼': item.rewards,
+                    '游戏版本': item.version,
+                    '优先级': item.priority,
+                    '稀有度': item.rarity,
+                    '参数值': item.params
+                }));
+                
+                // 创建工作簿
+                const worksheet = XLSX.utils.json_to_sheet(data);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, '成就数据');
+                
+                // 生成Excel文件并下载
+                XLSX.writeFile(workbook, `星穹铁道成就数据_${new Date().toISOString().slice(0,10)}.xlsx`);
+                showStatus('导出Excel成功！', 'success');
+            } catch (error) {
+                console.error('导出错误:', error);
+                showStatus(`导出失败: ${error.message}`, 'error');
+            }
+        }
+        
+        // 状态显示
+        function showStatus(message, type = 'info') {
+            statusBar.textContent = message;
+            statusBar.className = 'status-bar';
+            
+            if (type === 'error') {
+                statusBar.classList.add('error');
+            } else if (type === 'loading') {
+                statusBar.classList.add('loading');
+            }
+            
+            statusBar.style.display = 'block';
+            
+            // 5秒后自动隐藏（错误消息除外）
+            if (type !== 'error') {
+                setTimeout(() => {
+                    statusBar.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        // 初始化应用
+        window.addEventListener('DOMContentLoaded', function() {
+            // 初始化时检查Chart.js是否加载成功
+            checkChartJsLoaded();
+            
+            // 初始化应用
+            init();
+        });
+    </script>
+</body>
+</html>
